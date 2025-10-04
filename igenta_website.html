@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGENTA株式会社</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            line-height: 1.8;
+            color: #000;
+            background-color: #fff;
+        }
+
+        header {
+            border-bottom: 2px solid #000;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+            font-family: 'Dancing Script', 'Brush Script MT', cursive;
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        section {
+            margin-bottom: 80px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .business-item {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        .business-number {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px 0;
+        }
+
+        .info-label {
+            min-width: 140px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        .info-content {
+            flex: 1;
+            letter-spacing: 0.02em;
+        }
+
+        footer {
+            border-top: 2px solid #000;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .info-label {
+                margin-bottom: 5px;
+            }
+
+            main {
+                padding: 40px 20px;
+            }
+
+            section {
+                margin-bottom: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>IGENTA株式会社</h1>
+        <p class="subtitle">IGENTA Inc.</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>Business</h2>
+            <div class="business-item">
+                <span class="business-number">01.</span>
+                <span>WEBマーケティング支援及びコンサルティング業</span>
+            </div>
+            <div class="business-item">
+                <span class="business-number">02.</span>
+                <span>アーティストのマネジメント業</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>Company</h2>
+            <div class="info-row">
+                <div class="info-label">会社名</div>
+                <div class="info-content">IGENTA株式会社</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">代表取締役</div>
+                <div class="info-content">土井 詩織</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">所在地</div>
+                <div class="info-content">〒150-0002<br>東京都渋谷区渋谷1-3-18 ビラ・モデルナA203</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">資本金</div>
+                <div class="info-content">100万円</div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 IGENTA Inc. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
