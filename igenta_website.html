@@ -1,171 +1,450 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGENTA株式会社</title>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+import { FormEvent, useState } from "react";
+
+function App() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (formData: FormData) => {
+    const newErrors: Record<string, string> = {};
+
+    const companyName = formData.get("companyName")?.toString().trim();
+    const name = formData.get("name")?.toString().trim();
+    const phone = formData.get("phone")?.toString().trim();
+    const email = formData.get("email")?.toString().trim();
+    const services = formData.getAll("services");
+
+    if (!companyName) {
+      newErrors.companyName = "会社名を入力してください";
+    }
+
+    if (!name) {
+      newErrors.name = "お名前を入力してください";
+    }
+
+    if (!phone) {
+      newErrors.phone = "電話番号を入力してください";
+    }
+
+    if (!email) {
+      newErrors.email = "メールアドレスを入力してください";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "有効なメールアドレスを入力してください";
+    }
+
+    if (services.length === 0) {
+      newErrors.services = "少なくとも1つのサービスを選択してください";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrors({});
+    setSubmitMessage(null);
+
+    const formData = new FormData(event.currentTarget);
+    const validationErrors = validateForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSubmitMessage("入力内容に誤りがあります。ご確認ください。");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const services = formData.getAll("services").map(String);
+
+      const payload = {
+        companyName: formData.get("companyName")?.toString().trim() ?? "",
+        name: formData.get("name")?.toString().trim() ?? "",
+        phone: formData.get("phone")?.toString().trim() ?? "",
+        email: formData.get("email")?.toString().trim() ?? "",
+        services,
+        otherDetail: formData.get("otherDetail")?.toString().trim() ?? "",
+      };
+
+      console.log("Form submitted", payload);
+      // TODO: Connect to backend endpoint for sending emails.
+
+      event.currentTarget.reset();
+      setSubmitMessage("送信が完了しました。");
+      
+      // 3秒後にメッセージを消去
+      setTimeout(() => setSubmitMessage(null), 3000);
+    } catch (error) {
+      console.error(error);
+      setSubmitMessage("送信に失敗しました。時間をおいて再度お試しください。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-black scroll-smooth" style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <style>{`
+        .cursive-text {
+          font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
         }
-
-        body {
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-            line-height: 1.8;
-            color: #000;
-            background-color: #fff;
+        @keyframes fadeInText {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-
-        header {
-            border-bottom: 2px solid #000;
-            padding: 40px 20px;
-            text-align: center;
+        .animate-fade-in-text {
+          opacity: 0;
+          animation: fadeInText 1.5s ease-out infinite;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            margin-bottom: 10px;
-            font-family: 'Libre Caslon Text', 'Big Caslon', 'Caslon', Georgia, serif;
+        .animate-fade-in-text:nth-child(1) { animation-delay: 0s; }
+        .animate-fade-in-text:nth-child(2) { animation-delay: 1.5s; }
+        .animate-fade-in-text:nth-child(3) { animation-delay: 3s; }
+        .animate-fade-in-text:nth-child(4) { animation-delay: 4.5s; }
+        .animate-fade-in-text:nth-child(5) { animation-delay: 6s; }
+        .animate-fade-in-text:nth-child(6) { animation-delay: 7.5s; }
+        .star-button {
+          position: relative;
+          border-radius: 8px;
+          padding: 0.75rem 2rem;
         }
+      `}</style>
+      <header className="border-b-2 border-[#0f3d2e] px-5 py-10 text-center">
+        <h1 className="cursive-text mb-2 text-4xl font-light tracking-[0.1em] sm:text-5xl">
+          IGENTA
+        </h1>
+        <p className="cursive-text text-xs font-light tracking-[0.2em] sm:text-sm">IGENTA Inc.</p>
+        <p className="cursive-text mt-2 text-[11px] font-light tracking-[0.05em] text-gray-400">
+          {"Vždy živá a veselá spoločnosť".split(" ").map((word, index) => (
+            <span key={index} className="animate-fade-in-text inline-block mr-1">
+              {word}
+            </span>
+          ))}
+        </p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href="#artists"
+            className="cursive-text inline-block border border-[#0f3d2e] px-7 py-2 text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-[#0f3d2e] hover:text-white hover:-translate-y-1 sm:text-sm cursor-pointer"
+            style={{ transition: 'all 0.3s ease' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '';
+            }}
+          >
+            ARTIST
+          </a>
+          <a
+            href="#contact"
+            className="cursive-text inline-block border border-[#0f3d2e] px-7 py-2 text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-[#0f3d2e] hover:text-white hover:-translate-y-1 sm:text-sm cursor-pointer"
+            style={{ transition: 'all 0.3s ease' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '';
+            }}
+          >
+            CONTACT
+          </a>
+        </div>
+      </header>
 
-        .subtitle {
-            font-size: 0.9rem;
-            letter-spacing: 0.2em;
-            font-weight: 300;
-        }
-
-        main {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-
-        section {
-            margin-bottom: 80px;
-            padding-bottom: 40px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        section:last-child {
-            border-bottom: none;
-        }
-
-        h2 {
-            font-size: 1.3rem;
-            font-weight: 400;
-            margin-bottom: 30px;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .business-item {
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .business-number {
-            font-weight: 600;
-            margin-right: 10px;
-        }
-
-        .info-row {
-            display: flex;
-            margin-bottom: 20px;
-            padding: 15px 0;
-        }
-
-        .info-label {
-            min-width: 140px;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-        }
-
-        .info-content {
-            flex: 1;
-            letter-spacing: 0.02em;
-        }
-
-        footer {
-            border-top: 2px solid #000;
-            padding: 30px 20px;
-            text-align: center;
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .info-row {
-                flex-direction: column;
-            }
-
-            .info-label {
-                margin-bottom: 5px;
-            }
-
-            main {
-                padding: 40px 20px;
-            }
-
-            section {
-                margin-bottom: 50px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>IGENTA株式会社</h1>
-        <p class="subtitle">IGENTA Inc.</p>
-        <nav style="margin-top: 20px;">
-            <a href="contact.html" style="color: #000; text-decoration: none; border: 1px solid #000; padding: 10px 30px; display: inline-block; letter-spacing: 0.1em; transition: all 0.3s;" onmouseover="this.style.backgroundColor='#000'; this.style.color='#fff';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#000';">お申し込み</a>
-        </nav>
-    </header>
-
-    <main>
-        <section>
-            <h2>Business</h2>
-            <div class="business-item">
-                <span class="business-number">01.</span>
-                <span>WEBマーケティング支援及びコンサルティング業</span>
-            </div>
-            <div class="business-item">
-                <span class="business-number">02.</span>
-                <span>アーティストのマネジメント業</span>
-            </div>
+      <main className="mx-auto max-w-3xl px-5 py-16 space-y-16">
+        <section id="artists" className="border-b border-[#0f3d2e]/40 pb-10">
+          <h2 className="cursive-text mb-8 text-base font-normal tracking-[0.15em] uppercase">Artists</h2>
+          <div className="grid gap-6 sm:grid-cols-2">
+            {[
+              {
+                name: "SHIORI",
+                role: "CEO / MODEL",
+                description: "代表取締役　兼　MODEL",
+              },
+              {
+                name: "Coming Soon",
+                role: "VOICE ACTOR",
+                description: "声優 / STAY TUNED...",
+              },
+              {
+                name: "Coming Soon",
+                role: "ATHLETE",
+                description: "アスリート / STAY TUNED...",
+              },
+              {
+                name: "Coming Soon",
+                role: "Artist",
+                description: "アーティスト / STAY TUNED...",
+              },
+            ].map((artist, index) => (
+              <div
+                key={`${artist.name}-${index}`}
+                className="flex h-full flex-col gap-3 border border-[#0f3d2e]/40 bg-white/60 p-5 text-sm tracking-[0.02em] shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer"
+                style={{ transition: 'all 0.3s ease' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
+                <div>
+                  <p className="cursive-text text-base font-medium tracking-[0.05em] text-[#0f3d2e]">{artist.name}</p>
+                  <p className="cursive-text text-[10px] font-light uppercase tracking-[0.2em] text-[#0f3d2e]/70">{artist.role}</p>
+                </div>
+                <p className="leading-relaxed text-[#0b271d] text-xs font-light">
+                  {artist.description.includes(' / ') ? (
+                    <>
+                      <span className="cursive-text">{artist.description.split(' / ')[1]}</span>
+                      <span className="not-italic"> / </span>
+                      <span className="cursive-text">{artist.description.split(' / ')[0]}</span>
+                    </>
+                  ) : (
+                    <span>{artist.description}</span>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section>
-            <h2>Company</h2>
-            <div class="info-row">
-                <div class="info-label">会社名</div>
-                <div class="info-content">IGENTA株式会社</div>
+        <section
+          id="contact"
+          className="border-b border-[#0f3d2e]/40 pb-10"
+        >
+          <h2 className="cursive-text mb-8 text-base font-normal tracking-[0.15em] uppercase">Contact</h2>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium tracking-[0.05em]" htmlFor="companyName">
+                会社名 <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="companyName"
+                name="companyName"
+                type="text"
+                className={`w-full border px-4 py-3 text-sm tracking-[0.02em] focus:outline-none ${
+                  errors.companyName
+                    ? "border-red-600 focus:border-red-600"
+                    : "border-[#0f3d2e]/40 focus:border-[#0f3d2e]"
+                }`}
+                aria-invalid={errors.companyName ? "true" : "false"}
+                aria-describedby={errors.companyName ? "companyName-error" : undefined}
+              />
+              {errors.companyName && (
+                <p id="companyName-error" className="text-xs text-red-600">
+                  {errors.companyName}
+                </p>
+              )}
             </div>
-            <div class="info-row">
-                <div class="info-label">代表取締役</div>
-                <div class="info-content">土井 詩織</div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium tracking-[0.05em]" htmlFor="name">
+                お名前 <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                className={`w-full border px-4 py-3 text-sm tracking-[0.02em] focus:outline-none ${
+                  errors.name
+                    ? "border-red-600 focus:border-red-600"
+                    : "border-[#0f3d2e]/40 focus:border-[#0f3d2e]"
+                }`}
+                aria-invalid={errors.name ? "true" : "false"}
+                aria-describedby={errors.name ? "name-error" : undefined}
+              />
+              {errors.name && (
+                <p id="name-error" className="text-xs text-red-600">
+                  {errors.name}
+                </p>
+              )}
             </div>
-            <div class="info-row">
-                <div class="info-label">所在地</div>
-                <div class="info-content">〒150-0002<br>東京都渋谷区渋谷1-3-18 ビラ・モデルナA203</div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium tracking-[0.05em]" htmlFor="phone">
+                電話番号 <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className={`w-full border px-4 py-3 text-sm tracking-[0.02em] focus:outline-none ${
+                  errors.phone
+                    ? "border-red-600 focus:border-red-600"
+                    : "border-[#0f3d2e]/40 focus:border-[#0f3d2e]"
+                }`}
+                aria-invalid={errors.phone ? "true" : "false"}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
+              />
+              {errors.phone && (
+                <p id="phone-error" className="text-xs text-red-600">
+                  {errors.phone}
+                </p>
+              )}
             </div>
-            <div class="info-row">
-                <div class="info-label">資本金</div>
-                <div class="info-content">100万円</div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium tracking-[0.05em]" htmlFor="email">
+                メールアドレス <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className={`w-full border px-4 py-3 text-sm tracking-[0.02em] focus:outline-none ${
+                  errors.email
+                    ? "border-red-600 focus:border-red-600"
+                    : "border-[#0f3d2e]/40 focus:border-[#0f3d2e]"
+                }`}
+                aria-invalid={errors.email ? "true" : "false"}
+                aria-describedby={errors.email ? "email-error" : undefined}
+              />
+              {errors.email && (
+                <p id="email-error" className="text-xs text-red-600">
+                  {errors.email}
+                </p>
+              )}
             </div>
+            <fieldset className="space-y-4">
+              <legend className="text-sm font-medium tracking-[0.05em]">
+                ご希望のサービス <span className="text-red-600">*</span>
+              </legend>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  "WEB制作",
+                  "LINEスタンプ作成",
+                  "SEO対策",
+                  "グッズデザイン",
+                  "委託販売",
+                  "ECサイト構築",
+                  "アプリの作成",
+                  "AIの作成",
+                  "ARTISTへの出演依頼",
+                  "メディア取材依頼",
+                  "その他",
+                ].map((service) => (
+                  <label key={service} className="flex items-start gap-3 text-sm tracking-[0.02em]">
+                    <input
+                      type="checkbox"
+                      name="services"
+                      value={service}
+                      className="mt-1"
+                    />
+                    <span>{service}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.services && (
+                <p className="text-xs text-red-600">
+                  {errors.services}
+                </p>
+              )}
+            </fieldset>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium tracking-[0.05em]" htmlFor="otherDetail">
+                その他の詳細
+              </label>
+              <textarea
+                id="otherDetail"
+                name="otherDetail"
+                rows={4}
+                className="w-full border border-[#0f3d2e]/40 px-4 py-3 text-sm tracking-[0.02em] focus:border-[#0f3d2e] focus:outline-none"
+              />
+            </div>
+            <div className="space-y-3 flex flex-col items-center">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="star-button border border-black bg-black text-sm font-mono font-medium tracking-[0.1em] text-white transition-all duration-300 hover:bg-gray-800 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                style={{ transition: 'all 0.3s ease' }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
+                {isSubmitting ? "送信中..." : (
+                  <>
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      className="w-5 h-5"
+                    >
+                      <path d="M22 2L11 13"></path>
+                      <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                    </svg>
+                    送信
+                  </>
+                )}
+              </button>
+              {submitMessage && (
+                <p className={`text-center text-sm tracking-[0.05em] w-full ${
+                  submitMessage.includes("完了") ? "text-green-600" : "text-red-600"
+                }`}>
+                  {submitMessage}
+                </p>
+              )}
+            </div>
+          </form>
         </section>
-    </main>
 
-    <footer>
-        <p>&copy; 2025 IGENTA Inc. All Rights Reserved.</p>
-    </footer>
-</body>
-</html>
+        <section className="border-b border-[#0f3d2e]/40 pb-10">
+          <h2 className="cursive-text mb-8 text-base font-normal tracking-[0.15em] uppercase">Business</h2>
+          <div className="space-y-5">
+            <div className="pl-5">
+              <span className="mr-3 font-semibold">01.</span>
+              <span>WEBマーケティング支援及びコンサルティング業</span>
+            </div>
+            <div className="pl-5">
+              <span className="mr-3 font-semibold">02.</span>
+              <span>アーティストのマネジメント業</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-[#0f3d2e]/40 pb-10 mb-16 last:border-b-0 last:pb-0 last:mb-0">
+          <h2 className="cursive-text mb-8 text-base font-normal tracking-[0.15em] uppercase">Company</h2>
+          <div className="space-y-6">
+            <div className="flex flex-col gap-1 border-t border-transparent pt-0 text-sm sm:flex-row sm:items-start sm:gap-0 sm:text-base">
+              <div className="min-w-[140px] font-medium tracking-[0.05em]">会社名</div>
+              <div className="flex-1 tracking-[0.02em]">IGENTA株式会社</div>
+            </div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-0">
+              <div className="min-w-[140px] font-medium tracking-[0.05em]">代表取締役</div>
+              <div className="flex-1 tracking-[0.02em]">土井 詩織</div>
+            </div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-0">
+              <div className="min-w-[140px] font-medium tracking-[0.05em]">所在地</div>
+              <div className="flex-1 tracking-[0.02em]">
+                〒150-0002
+                <br />
+                東京都渋谷区渋谷1-3-18 ビラ・モデルナA203
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-0">
+              <div className="min-w-[140px] font-medium tracking-[0.05em]">資本金</div>
+              <div className="flex-1 tracking-[0.02em]">100万円</div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t-2 border-[#0f3d2e] px-5 py-8 text-center text-xs tracking-[0.1em] sm:text-sm">
+        &copy; 2025 IGENTA Inc. All Rights Reserved.
+      </footer>
+    </div>
+  );
+}
+
+export default App;
